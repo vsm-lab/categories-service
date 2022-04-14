@@ -1,0 +1,8 @@
+version: '3.2'
+services:
+  category-service:
+    build:
+      context: ./
+      dockerfile: .
+    ports:
+      - "8081:8080"
