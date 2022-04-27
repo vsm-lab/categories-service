@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -51,24 +52,25 @@ public class CategoryController {
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "categoryId not found");
             }
+        } catch (ResponseStatusException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
 
-    @DeleteMapping(path = "category/{categoryId}")
+    @DeleteMapping(path = "categories/{categoryId}")
     public ResponseEntity<Void> deleteCategoryById(@PathVariable(value = "categoryId") Integer categoryId) {
         try {
             var response = restTemplate.exchange(productBaseUrl + "/products-by-category/" + categoryId, HttpMethod.DELETE, null, Void.class);
-            if (response.getStatusCode().is2xxSuccessful() || response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                if (!response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                    categoryRepository.deleteById(categoryId);
-                }
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
+            assert (response.getStatusCode().is2xxSuccessful());
+            categoryRepository.deleteById(categoryId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception ex) {
+            if (ex instanceof HttpClientErrorException &&
+                    ((HttpClientErrorException) ex).getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Products that use this category could not be deleted.");
             }
-        } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
