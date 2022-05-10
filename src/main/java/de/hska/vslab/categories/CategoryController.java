@@ -62,7 +62,7 @@ public class CategoryController {
     @DeleteMapping(path = "categories/{categoryId}")
     public ResponseEntity<Void> deleteCategoryById(@PathVariable(value = "categoryId") Integer categoryId) {
         try {
-            var response = restTemplate.exchange(productBaseUrl + "/products-by-category/" + categoryId, HttpMethod.DELETE, null, Void.class);
+            var response = restTemplate.exchange(productBaseUrl + "/products/by-category/" + categoryId, HttpMethod.DELETE, null, Void.class);
             assert (response.getStatusCode().is2xxSuccessful());
             categoryRepository.deleteById(categoryId);
             return new ResponseEntity<>(HttpStatus.OK);
