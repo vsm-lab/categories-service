@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Controller
 public class CategoryController {
 
-    @Value("${product-service.base-url}")
+    @Value("${products-service.base-url}")
     private String productBaseUrl;
 
     @Autowired
